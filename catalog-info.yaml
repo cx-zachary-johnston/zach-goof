@@ -1,0 +1,16 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: super-duper-component     # Metadata name (mandatory)
+  title: "Super Duper Component"  # Friendly UI title (optional)
+  description: >
+    A high-performance backend service for processing transactions
+    in the Super Duper application.
+  annotations:
+    github.com/project-slug: my-org/super-duper-component
+    backstage.io/source-location: url:https://github.com/my-org/super-duper-component/blob/main/
+spec:
+  type: service           # Classification (mandatory)
+  lifecycle: production   # Lifecycle state (optional but recommended)
+  owner: team-superduper  # Owning team (mandatory)
+  system: super-duper-app # Application grouping (optional)

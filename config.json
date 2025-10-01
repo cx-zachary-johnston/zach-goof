@@ -1,0 +1,14 @@
+{
+    "database": {
+      "host": "localhost",
+      "port": 5432,
+      "user": "admin",
+      "password": "supersecret123"
+    },
+    "api": {
+      "key": "made-up-secret-string-123456"
+    },
+    "auth": {
+      "jwtSecret": "made-up-secret-string-abcdef"
+    }
+  }
