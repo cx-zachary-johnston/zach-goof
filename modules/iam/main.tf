@@ -5,8 +5,8 @@ data "aws_iam_policy_document" "admin-assume-role-policy" {
   }
 }
 
-resource "aws_iam_role" "snyk-admin-role" {
-  name                = "snyk_${var.environment}_role"
+resource "aws_iam_role" "checkmarx-admin-role" {
+  name                = "checkmarx_${var.environment}_role"
   assume_role_policy  = data.aws_iam_policy_document.admin-assume-role-policy.json # (not shown)
   managed_policy_arns = []
 }
