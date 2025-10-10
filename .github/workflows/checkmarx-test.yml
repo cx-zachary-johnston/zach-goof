@@ -8,64 +8,23 @@ on:
 jobs:
   cx-sast:
     runs-on: ubuntu-latest
-
-    env:
-      CHECKMARX_BASE_URI: ${{ secrets.CHECKMARX_BASE_URI }}   # e.g. https://ast.checkmarx.net
-      CHECKMARX_TENANT:   ${{ secrets.CHECKMARX_TENANT }}
-      CHECKMARX_API_KEY:  ${{ secrets.CHECKMARX_API_KEY }}
+    permissions:
+      contents: read
+      pull-requests: write
 
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install jq (for parsing)
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y jq
-
-      - name: Install Checkmarx CLI
-        run: |
-          set -euxo pipefail
-          # Get latest linux_amd64 asset URL directly
-          URL=$(curl -s https://api.github.com/repos/Checkmarx/ast-cli/releases/latest \
-            | jq -r '.assets[] | select(.name | test("linux_amd64\\.tar\\.gz$")) .browser_download_url' | head -n1)
-
-          # Fallback if URL not found
-          if [ -z "$URL" ] || [ "$URL" = "null" ]; then
-            VER="2.3.36"
-            URL="https://github.com/Checkmarx/ast-cli/releases/download/${VER}/ast-cli_${VER}_linux_amd64.tar.gz"
-          fi
-
-          echo "Downloading: $URL"
-          curl -L -o cx.tar.gz "$URL"
-
-          # Verify archive and extract
-          file cx.tar.gz
-          tar -xzf cx.tar.gz
-          sudo mv cx /usr/local/bin/cx
-          cx version
-
-      - name: Configure Checkmarx
-        run: |
-          set -euxo pipefail
-          cx configure set base_uri "$CHECKMARX_BASE_URI"
-          cx configure set tenant "$CHECKMARX_TENANT"
-          cx configure set api_key "$CHECKMARX_API_KEY"
-
-      - name: Run SAST scan for this PR
-        run: |
-          set -euxo pipefail
-          PROJECT="pr-${{ github.event.repository.name }}-${{ github.event.pull_request.number }}"
-          BRANCH="${{ github.head_ref }}"
-          cx scan create \
-            --project-name "$PROJECT" \
-            --branch "$BRANCH" \
-            --sast \
+      - name: Run Checkmarx SAST (OAuth)
+        uses: Checkmarx/ast-github-action@v2.3.27
+        with:
+          base_url: ${{ secrets.CHECKMARX_BASE_URI }}
+          tenant:   ${{ secrets.CHECKMARX_TENANT }}
+          client_id:     ${{ secrets.CHECKMARX_CLIENT_ID }}
+          client_secret: ${{ secrets.CHECKMARX_CLIENT_SECRET }}
+          additional_params: >
+            --sast
+            --project-name "pr-${{ github.event.repository.name }}-${{ github.event.pull_request.number }}"
+            --branch "${{ github.head_ref }}"
             --async false
-
-      - name: Summary
-        if: always()
-        run: |
-          echo "### ✅ Checkmarx SAST triggered for PR #${{ github.event.pull_request.number }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Project: pr-${{ github.event.repository.name }}-${{ github.event.pull_request.number }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Branch:  ${{ github.head_ref }}" >> $GITHUB_STEP_SUMMARY
