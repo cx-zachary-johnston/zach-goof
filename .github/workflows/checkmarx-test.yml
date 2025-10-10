@@ -17,11 +17,11 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run Checkmarx SAST (OAuth)
-        uses: Checkmarx/ast-github-action@v2.3.27
+        uses: Checkmarx/ast-github-action@2.3.27
         with:
-          base_url: ${{ secrets.CHECKMARX_BASE_URI }}
-          tenant:   ${{ secrets.CHECKMARX_TENANT }}
-          client_id:     ${{ secrets.CHECKMARX_CLIENT_ID }}
+          base_url: ${{ secrets.CHECKMARX_BASE_URI }}        # e.g. https://ast.checkmarx.net
+          tenant:   ${{ secrets.CHECKMARX_TENANT }}          # your tenant name
+          client_id:     ${{ secrets.CHECKMARX_CLIENT_ID }}  # from CxOne OAuth client
           client_secret: ${{ secrets.CHECKMARX_CLIENT_SECRET }}
           additional_params: >
             --sast
