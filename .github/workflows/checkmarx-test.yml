@@ -20,14 +20,10 @@ jobs:
 
       - name: Install Checkmarx CLI
         run: |
-          set -euxo pipefail
-          # Fetch latest release page and extract the Linux AMD64 tarball URL
-          curl -sL https://github.com/Checkmarx/ast-cli/releases/latest \
-            | grep -o 'https[^"]*ast-cli_linux_amd64\.tar\.gz' \
-            | head -n 1 \
-            | xargs curl -L -o cx.tar.gz
-          tar -xzf cx.tar.gz
-          sudo mv cx /usr/local/bin/cx
+         set -euxo pipefail
+         curl -L -o cx.tar.gz https://github.com/Checkmarx/ast-cli/releases/latest/download/ast-cli_linux_amd64.tar.gz
+         tar -xzf cx.tar.gz
+         sudo mv cx /usr/local/bin/cx
 
       - name: Configure Checkmarx
         run: |
