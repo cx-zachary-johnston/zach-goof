@@ -19,12 +19,17 @@ jobs:
       - name: Run Checkmarx SAST (OAuth)
         uses: Checkmarx/ast-github-action@2.3.27
         with:
-          base_url: ${{ secrets.CHECKMARX_BASE_URI }}        # e.g. https://ast.checkmarx.net
-          tenant:   ${{ secrets.CHECKMARX_TENANT }}          # your tenant name
-          client_id:     ${{ secrets.CHECKMARX_CLIENT_ID }}  # from CxOne OAuth client
-          client_secret: ${{ secrets.CHECKMARX_CLIENT_SECRET }}
+          # ✅ Use the input names the action actually supports
+          base_uri:        ${{ secrets.CHECKMARX_BASE_URI }}       # e.g. https://ast.checkmarx.net
+          cx_tenant:       ${{ secrets.CHECKMARX_TENANT }}
+          cx_client_id:    ${{ secrets.CHECKMARX_CLIENT_ID }}
+          cx_client_secret:${{ secrets.CHECKMARX_CLIENT_SECRET }}
+
+          # Let the action set these environment values explicitly
+          project_name: "pr-${{ github.event.repository.name }}-${{ github.event.pull_request.number }}"
+          branch:       "${{ github.head_ref }}"
+
+          # 🔧 Limit to SAST only; remove this line to run all licensed scanners
           additional_params: >
-            --sast
-            --project-name "pr-${{ github.event.repository.name }}-${{ github.event.pull_request.number }}"
-            --branch "${{ github.head_ref }}"
+            --scan-types sast
             --async false
