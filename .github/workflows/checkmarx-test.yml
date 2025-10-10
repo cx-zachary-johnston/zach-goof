@@ -3,7 +3,7 @@ name: Checkmarx Test
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   checkmarx-connection-test:
