@@ -41,8 +41,6 @@ const JWT_SECRET = "myjwtsecret1234567890";
 
 //test comment
 //another test comment
-//believe it or not, another comment
-//random comment for PR GHA testing
 
 function adminLoginSuccess(redirectPage, session, username, res) {
   session.loggedIn = 1
