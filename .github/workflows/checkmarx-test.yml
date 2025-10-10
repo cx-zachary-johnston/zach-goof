@@ -2,54 +2,34 @@ name: Checkmarx SAST on PR
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [opened, reopened]
     branches: [ master ]
 
 jobs:
   cx-sast:
     runs-on: ubuntu-latest
-
-    env:
-      CHECKMARX_BASE_URI: ${{ secrets.CHECKMARX_BASE_URI }}
-      CHECKMARX_TENANT:   ${{ secrets.CHECKMARX_TENANT }}    
-      CHECKMARX_API_KEY:  ${{ secrets.CHECKMARX_API_KEY }}   
+    permissions:
+      contents: read
+      pull-requests: write
 
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Checkmarx CLI
-        run: |
-          set -euxo pipefail
-          # Fetch latest release page and extract the Linux AMD64 tarball URL
-          curl -sL https://github.com/Checkmarx/ast-cli/releases/latest \
-            | grep -o 'https[^"]*ast-cli_linux_amd64\.tar\.gz' \
-            | head -n 1 \
-            | xargs curl -L -o cx.tar.gz
-          tar -xzf cx.tar.gz
-          sudo mv cx /usr/local/bin/cx
+      - name: Run Checkmarx SAST (OAuth)
+        uses: Checkmarx/ast-github-action@2.3.27
+        with:
+          # ✅ Use the input names the action actually supports
+          base_uri:        ${{ secrets.CHECKMARX_BASE_URI }}       # e.g. https://ast.checkmarx.net
+          cx_tenant:       ${{ secrets.CHECKMARX_TENANT }}
+          cx_client_id:    ${{ secrets.CHECKMARX_CLIENT_ID }}
+          cx_client_secret: ${{ secrets.CHECKMARX_CLIENT_SECRET }}
 
-      - name: Configure Checkmarx
-        run: |
-          set -euxo pipefail
-          cx configure set base_uri "$CHECKMARX_BASE_URI"
-          cx configure set tenant "$CHECKMARX_TENANT"
-          cx configure set api_key "$CHECKMARX_API_KEY"
+          # Let the action set these environment values explicitly
+          project_name: "pr-${{ github.event.repository.name }}-${{ github.event.pull_request.number }}"
+          branch:       "${{ github.head_ref }}"
 
-      - name: Run SAST scan for this PR
-        run: |
-          set -euxo pipefail
-          PROJECT="pr-${{ github.event.repository.name }}-${{ github.event.pull_request.number }}"
-          BRANCH="${{ github.head_ref }}"
-          cx scan create \
-            --project-name "$PROJECT" \
-            --branch "$BRANCH" \
-            --sast \
+          # 🔧 Limit to SAST only; remove this line to run all licensed scanners
+          additional_params: >
+            --scan-types sast
             --async false
-
-      - name: Summarize results
-        if: always()
-        run: |
-          echo "### ✅ Checkmarx SAST triggered for PR #${{ github.event.pull_request.number }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Project: pr-${{ github.event.repository.name }}-${{ github.event.pull_request.number }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Branch:  ${{ github.head_ref }}" >> $GITHUB_STEP_SUMMARY
