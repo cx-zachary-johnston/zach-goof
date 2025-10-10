@@ -2,7 +2,7 @@ name: Checkmarx SAST on PR
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [opened, reopened]
     branches: [ master ]
 
 jobs:
