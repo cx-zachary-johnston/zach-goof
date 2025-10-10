@@ -2,7 +2,7 @@ name: Checkmarx SAST on PR
 
 on:
   pull_request:
-    types: [opened, reopened]
+    types: [opened, reopened]   # only when PR is created or reopened
     branches: [ master ]
 
 jobs:
@@ -10,32 +10,43 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      CHECKMARX_BASE_URI: ${{ secrets.CHECKMARX_BASE_URI }}
-      CHECKMARX_TENANT:   ${{ secrets.CHECKMARX_TENANT }}    
-      CHECKMARX_API_KEY:  ${{ secrets.CHECKMARX_API_KEY }}   
+      CHECKMARX_BASE_URI: ${{ secrets.CHECKMARX_BASE_URI }}   # e.g. https://ast.checkmarx.net
+      CHECKMARX_TENANT:   ${{ secrets.CHECKMARX_TENANT }}
+      CHECKMARX_API_KEY:  ${{ secrets.CHECKMARX_API_KEY }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install Checkmarx CLI
+      - name: Install prerequisites (jq)
         run: |
-         set -euxo pipefail
-          # Resolve latest asset URL via GitHub API
-          URL="$(curl -s https://api.github.com/repos/Checkmarx/ast-cli/releases/latest \
-            | grep -o '"browser_download_url": *"[^"]*linux_amd64\.tar\.gz"' \
-            | head -n1 | cut -d '"' -f4 || true)"
+          set -euxo pipefail
+          sudo apt-get update
+          sudo apt-get install -y jq
 
-          # Fallback to a pinned version if API parsing fails
-          if [ -z "${URL:-}" ]; then
-            echo "Falling back to pinned version…"
+      - name: Install Checkmarx CLI (via GitHub Assets API)
+        run: |
+          set -euxo pipefail
+
+          # First try: latest release asset id
+          ASSET_ID="$(curl -s https://api.github.com/repos/Checkmarx/ast-cli/releases/latest \
+            | jq -r '.assets[] | select(.name | test("linux_amd64\\.tar\\.gz$")) .id' | head -n1)"
+
+          # Fallback: pinned version if latest isn't resolvable
+          if [ -z "${ASSET_ID:-}" ] || [ "${ASSET_ID}" = "null" ]; then
             VER="2.3.36"
-            URL="https://github.com/Checkmarx/ast-cli/releases/download/${VER}/ast-cli_${VER}_linux_amd64.tar.gz"
+            ASSET_ID="$(curl -s https://api.github.com/repos/Checkmarx/ast-cli/releases/tags/${VER} \
+              | jq -r '.assets[] | select(.name | test("linux_amd64\\.tar\\.gz$")) .id' | head -n1)"
           fi
 
-          curl -L -o cx.tar.gz "$URL"
+          # Download actual tarball stream
+          curl -L -H "Accept: application/octet-stream" \
+            "https://api.github.com/repos/Checkmarx/ast-cli/releases/assets/${ASSET_ID}" \
+            -o cx.tar.gz
+
           tar -xzf cx.tar.gz
           sudo mv cx /usr/local/bin/cx
+          cx version
 
       - name: Configure Checkmarx
         run: |
@@ -55,9 +66,9 @@ jobs:
             --sast \
             --async false
 
-      - name: Summarize results
+      - name: Summary
         if: always()
         run: |
-          echo "### ✅ Checkmarx SAST triggered for PR #${{ github.event.pull_request.number }}" >> $GITHUB_STEP_SUMMARY
+          echo "### Checkmarx SAST triggered for PR #${{ github.event.pull_request.number }}" >> $GITHUB_STEP_SUMMARY
           echo "- Project: pr-${{ github.event.repository.name }}-${{ github.event.pull_request.number }}" >> $GITHUB_STEP_SUMMARY
           echo "- Branch:  ${{ github.head_ref }}" >> $GITHUB_STEP_SUMMARY
