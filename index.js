@@ -40,6 +40,7 @@ const AWS_SECRET_ACCESS_KEY = "AKIAIOSFODNN7EXAMPLExwJ8fM0qFDSH";
 const JWT_SECRET = "myjwtsecret1234567890";
 
 //test comment
+//another test comment
 
 function adminLoginSuccess(redirectPage, session, username, res) {
   session.loggedIn = 1
