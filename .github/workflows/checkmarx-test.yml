@@ -2,7 +2,7 @@ name: Checkmarx SAST on PR
 
 on:
   pull_request:
-    types: [opened, reopened]   # only when PR is created or reopened
+    types: [opened, reopened]
     branches: [ master ]
 
 jobs:
@@ -18,32 +18,29 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install prerequisites (jq)
+      - name: Install jq (for parsing)
         run: |
-          set -euxo pipefail
           sudo apt-get update
           sudo apt-get install -y jq
 
-      - name: Install Checkmarx CLI (via GitHub Assets API)
+      - name: Install Checkmarx CLI
         run: |
           set -euxo pipefail
+          # Get latest linux_amd64 asset URL directly
+          URL=$(curl -s https://api.github.com/repos/Checkmarx/ast-cli/releases/latest \
+            | jq -r '.assets[] | select(.name | test("linux_amd64\\.tar\\.gz$")) .browser_download_url' | head -n1)
 
-          # First try: latest release asset id
-          ASSET_ID="$(curl -s https://api.github.com/repos/Checkmarx/ast-cli/releases/latest \
-            | jq -r '.assets[] | select(.name | test("linux_amd64\\.tar\\.gz$")) .id' | head -n1)"
-
-          # Fallback: pinned version if latest isn't resolvable
-          if [ -z "${ASSET_ID:-}" ] || [ "${ASSET_ID}" = "null" ]; then
+          # Fallback if URL not found
+          if [ -z "$URL" ] || [ "$URL" = "null" ]; then
             VER="2.3.36"
-            ASSET_ID="$(curl -s https://api.github.com/repos/Checkmarx/ast-cli/releases/tags/${VER} \
-              | jq -r '.assets[] | select(.name | test("linux_amd64\\.tar\\.gz$")) .id' | head -n1)"
+            URL="https://github.com/Checkmarx/ast-cli/releases/download/${VER}/ast-cli_${VER}_linux_amd64.tar.gz"
           fi
 
-          # Download actual tarball stream
-          curl -L -H "Accept: application/octet-stream" \
-            "https://api.github.com/repos/Checkmarx/ast-cli/releases/assets/${ASSET_ID}" \
-            -o cx.tar.gz
+          echo "Downloading: $URL"
+          curl -L -o cx.tar.gz "$URL"
 
+          # Verify archive and extract
+          file cx.tar.gz
           tar -xzf cx.tar.gz
           sudo mv cx /usr/local/bin/cx
           cx version
@@ -69,6 +66,6 @@ jobs:
       - name: Summary
         if: always()
         run: |
-          echo "### Checkmarx SAST triggered for PR #${{ github.event.pull_request.number }}" >> $GITHUB_STEP_SUMMARY
+          echo "### ✅ Checkmarx SAST triggered for PR #${{ github.event.pull_request.number }}" >> $GITHUB_STEP_SUMMARY
           echo "- Project: pr-${{ github.event.repository.name }}-${{ github.event.pull_request.number }}" >> $GITHUB_STEP_SUMMARY
           echo "- Branch:  ${{ github.head_ref }}" >> $GITHUB_STEP_SUMMARY
