@@ -2,7 +2,7 @@ name: Checkmarx SAST on PR
 
 on:
   pull_request:
-    types: [opened, reopened]
+    types: [opened, synchronize, reopened]   # standard: create + updates + reopen
     branches: [ master ]
 
 jobs:
@@ -11,25 +11,44 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+      security-events: write   # needed to upload SARIF
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Run Checkmarx SAST (OAuth)
+        id: cx
         uses: Checkmarx/ast-github-action@2.3.27
         with:
-          # ✅ Use the input names the action actually supports
-          base_uri:        ${{ secrets.CHECKMARX_BASE_URI }}       # e.g. https://ast.checkmarx.net
-          cx_tenant:       ${{ secrets.CHECKMARX_TENANT }}
-          cx_client_id:    ${{ secrets.CHECKMARX_CLIENT_ID }}
+          base_uri:         ${{ secrets.CHECKMARX_BASE_URI }}
+          cx_tenant:        ${{ secrets.CHECKMARX_TENANT }}
+          cx_client_id:     ${{ secrets.CHECKMARX_CLIENT_ID }}
           cx_client_secret: ${{ secrets.CHECKMARX_CLIENT_SECRET }}
 
-          # Let the action set these environment values explicitly
+          # make sure the action can decorate the PR
+          github_token:     ${{ secrets.GITHUB_TOKEN }}
+
+          # identify the PR and branch
           project_name: "pr-${{ github.event.repository.name }}-${{ github.event.pull_request.number }}"
           branch:       "${{ github.head_ref }}"
 
-          # 🔧 Limit to SAST only; remove this line to run all licensed scanners
+          # run SAST and also produce SARIF + a summary file
           additional_params: >
             --scan-types sast
-            --async false
+            --report-format sarif,summaryConsole
+            --output-path .
+            --output-name checkmarx
+
+      - name: Upload SARIF to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: ./checkmarx.sarif
+          category: checkmarx-sast
+
+      - name: Add PR summary
+        if: always()
+        run: |
+          echo "### ✅ Checkmarx SAST scan completed" >> $GITHUB_STEP_SUMMARY
+          echo "- Project: pr-${{ github.event.repository.name }}-${{ github.event.pull_request.number }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Branch:  ${{ github.head_ref }}" >> $GITHUB_STEP_SUMMARY
