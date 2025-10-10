@@ -1,22 +1,26 @@
-name: Checkmarx Test
+name: Checkmarx PR Version Check
 
 on:
-  push:
-    branches:
-      - master
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [ master ]
 
 jobs:
-  checkmarx-connection-test:
+  cx-version:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Verify environment
-        run: echo "✅ GitHub Action triggered successfully on push!"
-
-      - name: Test Checkmarx CLI connection
+      - name: Install Checkmarx CLI
         run: |
-          echo "Running Checkmarx CLI connectivity test..."
-          cx version || echo "Checkmarx CLI not found — check your setup"
+          set -euxo pipefail
+          curl -L https://github.com/Checkmarx/ast-cli/releases/latest/download/ast-cli_linux_amd64.tar.gz -o cx.tar.gz
+          tar -xzf cx.tar.gz
+          sudo mv cx /usr/local/bin/cx
+
+      - name: Display Checkmarx CLI version
+        run: |
+          echo "### ✅ Checkmarx CLI Version" >> $GITHUB_STEP_SUMMARY
+          cx version >> $GITHUB_STEP_SUMMARY
