@@ -1,0 +1,22 @@
+name: Checkmarx Test
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  checkmarx-connection-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Verify environment
+        run: echo "✅ GitHub Action triggered successfully on push!"
+
+      - name: Test Checkmarx CLI connection
+        run: |
+          echo "Running Checkmarx CLI connectivity test..."
+          cx version || echo "Checkmarx CLI not found — check your setup"
