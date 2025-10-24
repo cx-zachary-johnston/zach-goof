@@ -1,0 +1,12 @@
+[
+  {
+    "PackageManager": "npm",
+    "PackageName": "request",
+    "PackageVersion": "2.88.2"
+  },
+  {
+    "PackageManager": "npm",
+    "PackageName": "libxmljs",
+    "PackageVersion": "1.0.11"
+  }
+]
