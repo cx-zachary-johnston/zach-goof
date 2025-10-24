@@ -1,0 +1,34 @@
+{
+  "npm:request:2.88.2": {
+    "files": [
+      {
+        "path": "package.json",
+        "active": true,
+        "line": 55
+      }
+    ],
+    "type": "Oss",
+    "PackageManager": "npm",
+    "PackageName": "request",
+    "PackageVersion": "2.88.2",
+    "severity": "Medium",
+    "description": "CVE-2023-28155: The request package through 2.88.2 for Node.js and the @cypress/request package prior to 3.0.0 allow a bypass of SSRF mitigations via an attacker-controller server that does a cross-protocol redirect (HTTP to HTTPS, or HTTPS to HTTP). NOTE: The request package is no longer supported by the maintainer.",
+    "dateAdded": "2025-10-23T19:12:13.402Z"
+  },
+  "npm:libxmljs:1.0.11": {
+    "files": [
+      {
+        "path": "package.json",
+        "active": true,
+        "line": 41
+      }
+    ],
+    "type": "Oss",
+    "PackageManager": "npm",
+    "PackageName": "libxmljs",
+    "PackageVersion": "1.0.11",
+    "severity": "Critical",
+    "description": "CVE-2025-49794: A Use-After-Free vulnerability was found in libxml2. This issue occurs when parsing XPath elements under certain circumstances when the XML schematron has the \"<sch:name path=\"...\"/>\" schema elements. This flaw allows a malicious actor to craft a malicious XML document used as input for libxml, resulting in the program's crash using libxml or other possible undefined behaviors. The issue affects libxml and libxml2 versions v2.7.3 and after, LIBXML2_2_6_21 and after, LIBXML2.6.31 and after. This CVE shares the same fix as CVE-2025-49796., CVE-2025-49796: A vulnerability was found in libxml2. Processing certain \"sch:name\" elements from the input XML file can trigger a memory corruption issue. This flaw allows an attacker to craft a malicious XML input file that can lead libxml to crash, resulting in a Denial of Service (DoS) or other possible undefined behavior due to sensitive data being corrupted in memory. The issue affects libxml and libxml2 versions v2.7.3 and after, LIBXML2_2_6_21 and after, LIBXML2.6.31 and after. This CVE shares the same fix as CVE-2025-49794., CVE-2024-34391: The libxmljs is vulnerable to a Type Confusion vulnerability when parsing a specially crafted XML while invoking a function on the result of \"attrs()\" that was called on a parsed node. This vulnerability might lead to Denial Of Service (DOS) (on both 32-bit systems and 64-bit systems), data leak, infinite loop and remote code execution (on 32-bit systems with the \"XML_PARSE_HUGE\" flag enabled). This issue affects version 1.0.0 through version 1.0.11. , CVE-2024-34392: The libxmljs is vulnerable to a type confusion vulnerability when parsing a specially crafted XML while invoking the \"namespaces()\" function (which invokes \"_wrap__xmlNode_nsDef_get()\") on a grand-child of a node that refers to an entity. This vulnerability can lead to Denial Of Service (DOS) and Remote Code Execution (RCE).This issue affects version 1.0.0 through 1.0.11. , CVE-2025-6021: A flaw was found in libxml2's \"xmlBuildQName\" function, where integer overflows in buffer size calculations can lead to a Stack-based Buffer Overflow. This issue can result in memory corruption or a Denial of Service (DoS) when processing crafted input. This issue affects libxml versions LIBXML2_2_5_7 through LIBXML2_2_6_30, LIBXML2_6_0 through LIBXML2.7.3, and 2.7.3 through 2.14.3, and libxml2 versions LIBXML2_2_5_7 through LIBXML2_2_6_30, LIBXML2_6_0 through LIBXML2.7.3, and 2.7.3 through 2.14.3., CVE-2025-49795: A NULL pointer dereference vulnerability was found in libxml2 when processing XPath XML expressions. This flaw allows an attacker to craft a malicious XML input to libxml2, leading to a Denial of Service (DoS)., CVE-2022-40303: An issue was discovered in libxml2 prior to 2.10.3. When parsing a multi-gigabyte XML document with the \"XML_PARSE_HUGE\" parser option enabled, several integer counters can overflow. This results in an attempt to access an array at a negative 2GB offset, typically leading to a segmentation fault., CVE-2022-23308: \"valid.c\" in libxml2 prior to 2.9.13 has a use-after-free of ID and IDREF attributes., CVE-2022-40304: An issue was discovered in libxml2 prior to 2.10.3. Certain invalid XML entity definitions can corrupt a hash table key, potentially leading to subsequent logic errors. In one case, a double-free can be provoked., CVE-2023-28484: In libxml2 versions prior to 2.10.4, parsing of certain invalid XSD schemas can lead to a NULL Pointer Dereference and subsequently a segfault. This occurs in \"xmlSchemaFixupComplexType\" in \"xmlschemas.c\".",
+    "dateAdded": "2025-10-23T19:12:29.476Z"
+  }
+}
