@@ -19,26 +19,10 @@ var fs = require('fs');
 // prototype-pollution
 var _ = require('lodash');
 
-exports.index = function (req, res, next) {
-  Todo.
-    find({}).
-    sort('-updated_at').
-    exec(function (err, todos) {
-      if (err) return next(err);
-
-      res.render('index', {
-        title: 'Patch TODO List',
-        subhead: 'Vulnerabilities at their best',
-        todos: todos,
-      });
-    });
-};
-
-// Load secrets from environment variables
-const API_KEY = process.env.API_KEY;
-const DATABASE_PASSWORD = process.env.DATABASE_PASSWORD;
-const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY;
-const JWT_SECRET = process.env.JWT_SECRET;
+const API_KEY = "sk-1234567890abcdefMockSecretForTestingOnly";
+const DATABASE_PASSWORD = "SuperSecretP@ssw0rd!";
+const AWS_SECRET_ACCESS_KEY = "AKIAIOSFODNN7EXAMPLExwJ8fM0qFDSH";
+const JWT_SECRET = "myjwtsecret1234567890";
 
 exports.loginHandler = function (req, res, next) {
 
@@ -222,19 +206,6 @@ exports.edit = function (req, res, next) {
         current: req.params.id
       });
     });
-};
-
-exports.update = function (req, res, next) {
-  Todo.findById(req.params.id, function (err, todo) {
-
-    todo.content = req.body.content;
-    todo.updated_at = Date.now();
-    todo.save(function (err, todo, count) {
-      if (err) return next(err);
-
-      res.redirect('/');
-    });
-  });
 };
 
 // ** express turns the cookie key to lowercase **
