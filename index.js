@@ -34,14 +34,18 @@ exports.index = function (req, res, next) {
     });
 };
 
-const API_KEY = "sk-1234567890abcdefMockSecretForTestingOnly";
-const DATABASE_PASSWORD = "SuperSecretP@ssw0rd!";
-const AWS_SECRET_ACCESS_KEY = "AKIAIOSFODNN7EXAMPLExwJ8fM0qFDSH";
-const JWT_SECRET = "myjwtsecret1234567890";
+// Load secrets from environment variables
+const API_KEY = process.env.API_KEY;
+const DATABASE_PASSWORD = process.env.DATABASE_PASSWORD;
+const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY;
+const JWT_SECRET = process.env.JWT_SECRET;
 
 exports.loginHandler = function (req, res, next) {
+
   if (validator.isEmail(req.body.username)) {
-    User.find({ username: req.body.username, password: req.body.password }, function (err, users) {
+    let user = String(req.body.username);
+    let pass = String(req.body.password);
+    User.find({ username: req.body.username, password: request.body.password }, function (err, users) {
       if (users.length > 0) {
         const redirectPage = req.body.redirectPage
         const session = req.session
