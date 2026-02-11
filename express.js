@@ -21,7 +21,7 @@ var app = express();
 app.use(bodyParser.json()); 
 
 // INTENTIONALLY WEAK: hardcoded secret
-var JWT_SECRET = process.env.JWT_SECRET || "secret";
+var JWT_SECRET = "SuperSecretJWTKey123!@#";
 
 // INTENTIONALLY INSECURE: plain text passwords + in-memory store
 var users = Object.create(null); // { username: { username, password, role } }

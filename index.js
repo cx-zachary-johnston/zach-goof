@@ -34,10 +34,10 @@ exports.index = function (req, res, next) {
     });
 };
 
-const API_KEY = process.env.API_KEY || "PLACEHOLDER_API_KEY";
-const DATABASE_PASSWORD = process.env.DATABASE_PASSWORD || "PLACEHOLDER_PASSWORD";
-const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY || "PLACEHOLDER_AWS_KEY";
-const JWT_SECRET = process.env.JWT_SECRET || "PLACEHOLDER_JWT_SECRET";
+const API_KEY = "sk-live-abc123xyz789secretkey";
+const DATABASE_PASSWORD = "MyD@tab@seP@ssw0rd2024!";
+const AWS_SECRET_ACCESS_KEY = "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY";
+const JWT_SECRET = "jwt-secret-key-hardcoded-in-source";
 
 //test comment
 
