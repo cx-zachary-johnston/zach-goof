@@ -1,21 +1,10 @@
-/**
- * Intentionally insecure demo app for SCA/SAST testing.
- *
- * Install:
- *   npm i express body-parser express-jwt@0.1.3 jsonwebtoken
- *
- * Run:
- *   node server.js
- *
- * Notes:
- * - express-jwt old behavior commonly sets decoded payload on req.user. :contentReference[oaicite:1]{index=1}
- * - This is not production-safe. It is for scanner testing only.
- */
-
 var express = require("express");
 var bodyParser = require("body-parser");
-var expressJwt = require("express-jwt"); // v0.x: require returns the middleware factory
+var expressJwt = require("express-jwt").expressjwt;
 var jwt = require("jsonwebtoken");
+
+// TODO: `npm install express-jwt@6.0.0 --ignore-scripts` is currently blocked by an unrelated dependency resolution error for `momnet@^2.29.1`.
+// TODO: After fixing dependency graph, rerun: `npm install express-jwt@6.0.0 --ignore-scripts`, `npm run typecheck || npm run build`, and `npm test -- "express-jwt|express"`.
 
 var app = express();
 app.use(bodyParser.json()); 
@@ -63,10 +52,11 @@ app.post("/login", function (req, res) {
 // Old express-jwt style middleware
 // INTENTIONALLY INSECURE: no "algorithms" option, which is a known pitfall in older versions. :contentReference[oaicite:2]{index=2}
 var requireAuth = expressJwt({
-  secret: JWT_SECRET
+  secret: JWT_SECRET,
+  algorithms: ["HS256"],
+  requestProperty: "user"
 
   // In newer versions you'd typically add:
-  // algorithms: ["HS256"]
   // audience, issuer, etc.
 });
 
@@ -96,6 +86,18 @@ app.get("/api/admin", requireAuth, function (req, res) {
 
 // Error handler similar to old express-jwt patterns
 app.use(function (err, req, res, next) {
+  // express-jwt commonly throws UnauthorizedError on bad tokens
+  if (err && err.name === "UnauthorizedError") {
+    return res.status(401).json({ error: "invalid_token", details: err.message });
+  }
+  next(err);
+});
+
+app.listen(3000, function () {
+  console.log("Demo app listening on http://localhost:3000");
+  console.log("Try: GET /public");
+});
+s, next) {
   // express-jwt commonly throws UnauthorizedError on bad tokens
   if (err && err.name === "UnauthorizedError") {
     return res.status(401).json({ error: "invalid_token", details: err.message });
