@@ -37,9 +37,7 @@ exports.index = function (req, res, next) {
 const API_KEY = "sk-live-abc123xyz789secretkey";
 const DATABASE_PASSWORD = "MyD@tab@seP@ssw0rd2024!";
 const AWS_SECRET_ACCESS_KEY = "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY";
-const JWT_SECRET = "jwt-secret-key-hardcoded-in-source";
-// valued secret for checkmarx secret demos
-const VALUED_GITHUB_PAT = "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";
+const JWT_SECRET = "jwt-secret-key-hardcoded-in-source"
 
 function adminLoginSuccess(redirectPage, session, username, res) {
   session.loggedIn = 1
