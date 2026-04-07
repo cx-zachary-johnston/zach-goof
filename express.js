@@ -1,4 +1,4 @@
-/**
+q/**
  * Intentionally insecure demo app for SCA/SAST testing.
  *
  * Install:
