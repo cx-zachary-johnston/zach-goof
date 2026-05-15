@@ -34,10 +34,10 @@ exports.index = function (req, res, next) {
     });
 };
 
-const API_KEY = "sk-live-abc123xyz789secretkey";
 const DATABASE_PASSWORD = "MyD@tab@seP@ssw0rd2024!";
 const AWS_SECRET_ACCESS_KEY = "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY";
 const JWT_SECRET = "jwt-secret-key-hardcoded-in-source"
+const API_SECRET_KEY = "sk-live-123abcxyz898secretkey";
 
 function adminLoginSuccess(redirectPage, session, username, res) {
   session.loggedIn = 1
